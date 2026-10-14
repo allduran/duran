@@ -5,7 +5,7 @@ namespace Duran.Core;
 /// Encuentra los shells (locales y clonados) y sabe cuál está corriendo.
 public static class Catalog
 {
-    /// Todos los shells con shell.toml. Si un nombre está en los dos sitios, gana el local.
+    /// Todos los shells con shell.toml. Si un nombre está en los dos sitios, cuenta una vez.
     public static List<ShellManifest> Discover(List<string>? errors = null)
     {
         var found = new Dictionary<string, ShellManifest>(StringComparer.OrdinalIgnoreCase);
@@ -21,7 +21,9 @@ public static class Catalog
                     continue;
                 try
                 {
-                    var m = ShellManifest.Load(toml, source);
+                    // Un enlace en ~/.config/quickshell que apunta a un clon es un shell remoto
+                    var real = IsRemoteLink(shellDir) ? ShellSource.Remote : source;
+                    var m = ShellManifest.Load(toml, real);
                     found.TryAdd(m.Name, m);
                 }
                 catch (Exception e)
@@ -38,6 +40,16 @@ public static class Catalog
 
     public static ShellManifest? Find(string name) =>
         Discover().FirstOrDefault(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+    /// ¿Es un enlace simbólico que apunta dentro de ~/.local/share/duran/shells?
+    public static bool IsRemoteLink(string dir)
+    {
+        var target = new DirectoryInfo(dir).LinkTarget;
+        if (target == null)
+            return false;
+        var full = Path.GetFullPath(target, Path.GetDirectoryName(dir)!);
+        return full.StartsWith(Paths.RemoteShellsDir);
+    }
 
     /// ¿Hay un proceso "qs/quickshell … -c <nombre>"? Lee /proc directamente (sin pgrep).
     public static bool IsRunning(string name)

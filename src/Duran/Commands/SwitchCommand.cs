@@ -15,7 +15,7 @@ public static class SwitchCommand
         return cmd;
     }
 
-    static int Run(string name)
+    public static int Run(string name)
     {
         var shells = Catalog.Discover();
         var target = shells.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));

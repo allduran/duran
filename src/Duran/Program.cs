@@ -4,6 +4,9 @@ using Duran.Commands;
 var root = new RootCommand("duran — instala y cambia shells de Quickshell a partir de su shell.toml");
 root.Subcommands.Add(ListCommand.Create());
 root.Subcommands.Add(InfoCommand.Create());
+root.Subcommands.Add(InstallCommand.Create());
+root.Subcommands.Add(UninstallCommand.Create());
+root.Subcommands.Add(UpdateCommand.Create());
 root.Subcommands.Add(SwitchCommand.Create());
 foreach (var c in LifecycleCommands.Create())
     root.Subcommands.Add(c);

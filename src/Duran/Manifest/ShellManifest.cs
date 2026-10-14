@@ -1,6 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using Tomlyn;
 using Tomlyn.Model;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Duran.Manifest;
 
@@ -31,9 +31,12 @@ public sealed class ShellManifest
 
     public static ShellManifest Load(string tomlPath, ShellSource source)
     {
-                var table = ParseTable(File.ReadAllText(tomlPath))
+        var table = ParseTable(File.ReadAllText(tomlPath))
                     ?? throw new InvalidDataException("shell.toml vacío");
-        var root = Path.GetDirectoryName(Path.GetFullPath(tomlPath))!;
+        // Carpeta real (si es un enlace de stow o de duran, se sigue hasta el destino)
+        var dir = Path.GetDirectoryName(Path.GetFullPath(tomlPath))!;
+        var link = new DirectoryInfo(dir).LinkTarget;
+        var root = link != null ? Path.GetFullPath(link, Path.GetDirectoryName(dir)!) : dir;
 
         var shell = Sub(table, "shell");
         var packages = Sub(table, "packages");
@@ -60,7 +63,7 @@ public sealed class ShellManifest
         };
     }
 
-        // TomlTable es el modelo sin tipos de Tomlyn: no se recorre por reflexión,
+    // TomlTable es el modelo sin tipos de Tomlyn: no se recorre por reflexión,
     // así que funciona con AOT aunque el analizador avise (probado con velvet).
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "TomlTable no necesita reflexión")]
     [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "TomlTable no necesita reflexión")]

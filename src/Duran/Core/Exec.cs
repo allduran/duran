@@ -6,24 +6,35 @@ namespace Duran.Core;
 /// Ejecuta comandos de shell (sh -c) y arranca/para shells.
 public static class Exec
 {
-    /// Ejecuta y espera. Devuelve el código de salida.
-    public static int Run(string command, bool quiet = false)
+    /// Ejecuta y espera, con la terminal heredada (se ven las preguntas de sudo, paru…).
+    public static int Run(string command, string? workDir = null)
+    {
+        var psi = new ProcessStartInfo("sh", ["-c", command]) { UseShellExecute = false };
+        if (workDir != null)
+            psi.WorkingDirectory = workDir;
+        using var p = Process.Start(psi)!;
+        p.WaitForExit();
+        return p.ExitCode;
+    }
+
+    /// Ejecuta y devuelve (código, salida estándar).
+    public static (int Code, string Output) Capture(string command)
     {
         var psi = new ProcessStartInfo("sh", ["-c", command])
         {
             UseShellExecute = false,
-            RedirectStandardOutput = quiet,
-            RedirectStandardError = quiet,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
         };
         using var p = Process.Start(psi)!;
-        if (quiet)
-        {
-            p.StandardOutput.ReadToEnd();
-            p.StandardError.ReadToEnd();
-        }
+        var output = p.StandardOutput.ReadToEnd();
+        p.StandardError.ReadToEnd();
         p.WaitForExit();
-        return p.ExitCode;
+        return (p.ExitCode, output);
     }
+
+    /// ¿Existe el programa en el PATH?
+    public static bool Has(string program) => Capture($"command -v {program}").Code == 0;
 
     public static string StartCommand(ShellManifest s) => s.Start.Length > 0 ? s.Start : $"qs -c {s.Name} -d";
     public static string StopCommand(ShellManifest s) => s.Stop.Length > 0 ? s.Stop : $"qs -c {s.Name} kill";
@@ -45,7 +56,7 @@ public static class Exec
     {
         if (Catalog.IsRunning(s.Name))
             return true;
-        // A /dev/null y sin redirigir: el demonio (-d) heredaría las tuberías y nos dejaría esperando
+        // A /dev/null: el demonio (-d) no debe quedarse con nuestra terminal
         Run(StartCommand(s) + " >/dev/null 2>&1");
         return WaitRunning(s.Name, true);
     }
