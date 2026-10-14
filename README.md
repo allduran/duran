@@ -27,8 +27,16 @@ install -Dm755 out/duran ~/.local/bin/duran
 | `duran start \| stop \| restart [shell]` | Sobre el shell activo (o el indicado) |
 | `duran status` | Shell activo y si está corriendo |
 | `duran ipc [acción] [args]` | Ejecuta una acción `[ipc]` del shell activo; sin acción, las lista |
+| `duran new <nombre> [--dir carpeta]` | Crea un shell mínimo (`shell.toml`, `shell.qml`, hooks). Con `--dir` lo crea ahí y lo enlaza |
+| `duran completions fish` | Imprime el autocompletado para fish |
 
 Opciones de `install`: `--no-packages`, `--no-hook`, `--switch`. De `uninstall`: `--no-hook`, `--yes`.
+
+### Autocompletado (fish)
+
+```sh
+duran completions fish > ~/.config/fish/completions/duran.fish
+```
 
 ### Dónde busca los shells
 

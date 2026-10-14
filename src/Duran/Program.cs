@@ -11,5 +11,8 @@ root.Subcommands.Add(SwitchCommand.Create());
 foreach (var c in LifecycleCommands.Create())
     root.Subcommands.Add(c);
 root.Subcommands.Add(IpcCommand.Create());
+root.Subcommands.Add(NewCommand.Create());
+foreach (var c in CompletionsCommand.Create())
+    root.Subcommands.Add(c);
 
 return root.Parse(args).Invoke();
