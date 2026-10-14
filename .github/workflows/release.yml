@@ -1,0 +1,43 @@
+# Al subir un tag vX.Y.Z: compila duran (NativeAOT, linux-x64) y lo publica como release.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Dependencias de NativeAOT
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+
+      - name: Compilar
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          dotnet publish src/Duran -c Release -r linux-x64 -o out -p:Version="$VERSION"
+
+      - name: Empaquetar
+        run: |
+          mkdir -p dist
+          cp out/duran README.md dist/
+          [ -f LICENSE ] && cp LICENSE dist/
+          ./out/duran completions fish > dist/duran.fish
+          tar -czf "duran-${GITHUB_REF_NAME}-linux-x64.tar.gz" -C dist .
+          sha256sum duran-*.tar.gz > sha256sums.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            duran-*.tar.gz
+            sha256sums.txt
+          generate_release_notes: true
