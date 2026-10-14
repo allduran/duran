@@ -1,5 +1,6 @@
 using Tomlyn;
 using Tomlyn.Model;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Duran.Manifest;
 
@@ -30,7 +31,7 @@ public sealed class ShellManifest
 
     public static ShellManifest Load(string tomlPath, ShellSource source)
     {
-        var table = TomlSerializer.Deserialize<TomlTable>(File.ReadAllText(tomlPath))
+                var table = ParseTable(File.ReadAllText(tomlPath))
                     ?? throw new InvalidDataException("shell.toml vacío");
         var root = Path.GetDirectoryName(Path.GetFullPath(tomlPath))!;
 
@@ -58,6 +59,12 @@ public sealed class ShellManifest
             Source = source,
         };
     }
+
+        // TomlTable es el modelo sin tipos de Tomlyn: no se recorre por reflexión,
+    // así que funciona con AOT aunque el analizador avise (probado con velvet).
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "TomlTable no necesita reflexión")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "TomlTable no necesita reflexión")]
+    static TomlTable? ParseTable(string toml) => TomlSerializer.Deserialize<TomlTable>(toml);
 
     // ── Lectura tolerante: si falta una clave, valor por defecto ──
     static TomlTable? Sub(TomlTable? t, string key) =>
