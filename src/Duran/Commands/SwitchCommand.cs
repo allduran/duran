@@ -41,6 +41,8 @@ public static class SwitchCommand
         }
 
         State.Active = target.Name;
+          
+        Hypr.Apply(target);
 
         if (Catalog.IsRunning(target.Name))
         {

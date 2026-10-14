@@ -56,6 +56,8 @@ public static class UninstallCommand
         if (string.Equals(State.Active, s.Name, StringComparison.OrdinalIgnoreCase))
             State.Active = null;
 
+        Hypr.Remove(s);
+
         if (hook && s.UninstallHook.Length > 0)
         {
             var path = Path.Combine(s.Root, s.UninstallHook);

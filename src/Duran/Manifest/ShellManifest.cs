@@ -24,6 +24,7 @@ public sealed class ShellManifest
     public List<string> ConflictShells { get; init; } = [];
     public string InstallHook { get; init; } = "";
     public string UninstallHook { get; init; } = "";
+      public string HyprConfig { get; init; } = "";
 
     /// Carpeta donde está el shell.toml
     public required string Root { get; init; }
@@ -58,6 +59,7 @@ public sealed class ShellManifest
             ConflictShells = Strs(conflicts, "shells"),
             InstallHook = Str(hooks, "install"),
             UninstallHook = Str(hooks, "uninstall"),
+            HyprConfig = Str(Sub(table, "hyprland"), "config"),
             Root = root,
             Source = source,
         };
