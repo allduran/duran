@@ -36,8 +36,10 @@ public static class NewCommand
 
         Console.WriteLine($"{Ui.Bold("duran new")} {Ui.Bold(name)}");
         Directory.CreateDirectory(Path.Combine(root, "hooks"));
+        Directory.CreateDirectory(Path.Combine(root, "hypr"));
         Write(root, "shell.toml", Toml(name));
         Write(root, "shell.qml", Qml(name));
+        Write(root, "hypr/shell.lua", HyprLua(name));
         Write(root, "hooks/install.sh", Hook("install", name), exec: true);
         Write(root, "hooks/uninstall.sh", Hook("uninstall", name), exec: true);
 
@@ -83,6 +85,9 @@ public static class NewCommand
         install = "hooks/install.sh"
         uninstall = "hooks/uninstall.sh"
 
+        [hyprland]
+        config = "hypr/shell.lua"     # duran la enlaza en ~/.config/hypr/shell.lua
+
         """;
 
     static string Qml(string n) => $$"""
@@ -120,6 +125,23 @@ public static class NewCommand
                 target: "bar"
                 function toggle(): void { root.barVisible = !root.barVisible }
             }
+        }
+
+        """;
+
+    static string HyprLua(string n) => $$"""
+        -- {{n}} — parte de Hyprland del shell. duran la enlaza en ~/.config/hypr/shell.lua
+        -- al hacer `duran switch {{n}}`. theme = colores y ajustes que lee scheme/active.lua.
+
+        -- Paneles del shell sin animación de Hyprland (el shell los anima)
+        hl.layer_rule({ match = { namespace = "{{n}}-.*" }, no_anim = true })
+
+        return {
+            theme = {
+                accent = "c0caf5", accent2 = "7aa2f7", accent3 = "bb9af7",
+                onAccent = "16161e", inactive = "16161e", outline = "414868", bg = "1a1b26",
+                gapsIn = 5, gapsOut = 10, animations = true, blur = true, vrr = 0,
+            },
         }
 
         """;
