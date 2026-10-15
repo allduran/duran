@@ -9,7 +9,7 @@ public static class LifecycleCommands
 {
     public static IEnumerable<Command> Create()
     {
-        yield return Make("start", "Arranca el shell activo (para el autostart de Hyprland)", s => Exec.Start(s), "arrancado");
+        yield return Make("start", "Arranca el shell activo (para el autostart de Hyprland)", s => { Hypr.Apply(s); return Exec.Start(s); }, "arrancado");
         yield return Make("stop", "Para el shell activo", s => Exec.Stop(s), "parado");
         yield return Make("restart", "Reinicia el shell activo", s => Exec.Stop(s) && Exec.Start(s), "reiniciado");
 
