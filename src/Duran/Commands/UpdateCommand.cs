@@ -48,6 +48,17 @@ public static class UpdateCommand
                 failed++;
                 continue;
             }
+            // [hooks].update: lo que el shell quiera hacer tras actualizarse (puede preguntar)
+            if (s.UpdateHook.Length > 0)
+            {
+                var hook = Path.Combine(s.Root, s.UpdateHook);
+                if (File.Exists(hook))
+                {
+                    Ui.Step($"{s.Name}: hook {s.UpdateHook}");
+                    if (Exec.Run($"bash '{hook}'", s.Root) != 0)
+                        Ui.Warn($"{s.Name}: el hook de actualización falló");
+                }
+            }
             if (Catalog.IsRunning(s.Name))
             {
                 Ui.Step($"{s.Name}: reiniciando");

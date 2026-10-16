@@ -33,7 +33,7 @@ install -Dm755 out/duran ~/.local/bin/duran
 | `duran info <shell>` | Lo que declara su `shell.toml` |
 | `duran install <shell \| url \| usuario/repo>` | Instala paquetes y ejecuta su hook. Con URL o `usuario/repo` lo clona primero |
 | `duran uninstall <shell>` | Lo para, ejecuta su hook de desinstalación, quita su config de Hyprland y borra el clon (si es remoto) |
-| `duran update [shell]` | `git pull` de los shells remotos y reinicia los activos |
+| `duran update [shell]` | `git pull` de los shells remotos, ejecuta su hook de actualización y reinicia los activos |
 | `duran switch <shell>` | Para el shell actual, enlaza la config de Hyprland del nuevo y lo arranca |
 | `duran start \| stop \| restart [shell]` | Sobre el shell activo (o el indicado) |
 | `duran status` | Shell activo y si está corriendo |
@@ -151,6 +151,7 @@ shells = ["caelestia"]             # se paran al hacer `duran switch` a este she
 [hooks]
 install = "hooks/install.sh"       # lo que no son paquetes: servicios, grupos, carpetas…
 uninstall = "hooks/uninstall.sh"
+update = "hooks/update.sh"         # tras `duran update` (después del git pull, antes de reiniciar)
 
 [hyprland]
 config = "hypr/shell.lua"          # se enlaza en ~/.config/hypr/shell.lua al hacer switch
