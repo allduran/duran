@@ -8,6 +8,7 @@ root.Subcommands.Add(InstallCommand.Create());
 root.Subcommands.Add(UninstallCommand.Create());
 root.Subcommands.Add(UpdateCommand.Create());
 root.Subcommands.Add(SwitchCommand.Create());
+root.Subcommands.Add(HyprCommand.Create());
 foreach (var c in LifecycleCommands.Create())
     root.Subcommands.Add(c);
 root.Subcommands.Add(IpcCommand.Create());

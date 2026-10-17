@@ -68,7 +68,7 @@ public static class Hypr
         return true;
     }
 
-    static void Reload()
+    public static void Reload()
     {
         if (Environment.GetEnvironmentVariable("HYPRLAND_INSTANCE_SIGNATURE") is { Length: > 0 })
             Exec.Run("hyprctl reload >/dev/null 2>&1");

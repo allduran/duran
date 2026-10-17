@@ -20,4 +20,9 @@
     <PackageReference Include="Tomlyn" Version="2.10.1" />
   </ItemGroup>
 
+    <!-- Config base de Hyprland: va dentro del binario (duran hypr init) -->
+  <ItemGroup>
+    <EmbeddedResource Include="Starter/**/*" LogicalName="starter/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>
